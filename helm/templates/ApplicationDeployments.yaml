@@ -1,0 +1,32 @@
+{{ range .Values.applications }}
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  replicas: {{ .replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ .name }}-{{ $.Values.projectName }}
+  template:
+    spec:
+      containers:
+        - name: {{ .name }}-{{ $.Values.projectName }}
+          image: {{ .image }}:{{ .imageTag | default "latest" }}
+          ports:
+          {{ range .servicePorts }}
+            - containerPort: {{ .portNumber}}
+              protocol: {{ .protocol | default "TCP" }}
+          {{ end }}
+          {{ if .readinessProbe }}
+          readinessProbe:
+            httpGet:
+              port: {{ .readinessProbe.port }}
+              path: {{ .readinessProbe.path | default "/health" }}
+          {{ end }}
+          {{ if .readinessProbe }}
+          livenessProbe:
+            httpGet:
+              port: {{ .readinessProbe.port }}
+              path: {{ .readinessProbe.path | default "/health" }}
+          {{ end }}
+---
+{{ end }}

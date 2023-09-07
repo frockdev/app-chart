@@ -1,0 +1,56 @@
+projectName: "my-project"
+applications:
+  - name: "http"
+    image: "nginxdemos/hello"
+    imageTag: "latest"
+    servicePorts:
+      - portNumber: 8008
+        protocol: "TCP"
+    replicas: 1
+    readinessProbe:
+      initialDelaySeconds: 5
+      path: "/health"
+      periodSeconds: 10
+      port: 8008
+    livenessProbe:
+      initialDelaySeconds: 8
+      path: "/health"
+      periodSeconds: 15
+      port: 8008
+    entrypointsType: "http"
+    entrypoints:
+      - hostname: "valera.local.enot.digital"
+        servicePort: 8008
+        paths:
+          - path: "/"
+            pathType: "Prefix"
+        letsEncrypt: true
+    properties:
+      ingressClassName: "nginx"
+  - name: "grpc"
+    image: "nginxdemos/hello"
+    imageTag: "latest"
+    servicePorts:
+      - portNumber: 9009
+        protocol: "TCP"
+    replicas: 1
+    readinessProbe:
+      initialDelaySeconds: 5
+      path: "/health"
+      periodSeconds: 10
+      port: 8008
+    livenessProbe:
+      initialDelaySeconds: 8
+      path: "/health"
+      periodSeconds: 15
+      port: 8008
+    entrypointsType: "grpc"
+    entrypoints:
+      - hostname: "valera.local.enot.digital"
+        servicePort: 9009
+        paths:
+          - path: "/"
+            pathType: "Prefix"
+        letsEncrypt: true
+    properties:
+      ingressClassName: nginx

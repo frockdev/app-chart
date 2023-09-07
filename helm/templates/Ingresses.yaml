@@ -1,0 +1,29 @@
+{{ range $appIndex, $application := .Values.applications }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    {{- if eq $application.entrypointsType "grpc" }}
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    {{- end }}
+    kubernetes.io/ingress.class: {{ $application.properties.ingressClassName | default "nginx" }}
+  name: {{$application.name}}-{{ $.Values.projectName }}-ingress
+spec:
+  ingressClassName: {{ $application.properties.ingressClassName | default "nginx" }}
+  rules:
+  {{ range $index, $entrypoint := $application.entrypoints}}
+    - host: {{ $entrypoint.hostname }}
+      http:
+        paths:
+          {{ range $entrypoint.paths }}
+          - path: /
+            pathType: {{ .pathType | default "Prefix" }}
+            backend:
+              service:
+                name: {{ $application.name }}-{{ $.Values.projectName }}-svc
+                port:
+                  number: {{ $entrypoint.servicePort }}
+          {{ end}}
+  {{ end}}
+---
+{{ end}}

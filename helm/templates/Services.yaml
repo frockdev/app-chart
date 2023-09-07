@@ -1,0 +1,17 @@
+{{ range .Values.applications }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}-{{ $.Values.projectName }}-svc
+spec:
+  selector:
+    app: {{ .name }}-{{ $.Values.projectName }}
+  ports:
+  {{ range .servicePorts }}
+    - port: {{ .portNumber }}
+      targetPort: {{ .portNumber }}
+      protocol: {{ .protocol | default "TCP" }}
+      name: port-{{ .portNumber }}
+  {{ end }}
+---
+{{ end }}
