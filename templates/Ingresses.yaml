@@ -3,13 +3,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    {{- if eq $application.entrypointsType "grpc" }}
+    {{- if eq $application.appType "grpc" }}
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     {{- end }}
-    kubernetes.io/ingress.class: {{ $application.ingressClassName | default "nginx" }}
+    kubernetes.io/ingress.class: {{ $.Values.ingressClassName | default "nginx" }}
   name: {{$application.name}}-{{ $.Values.projectName }}-ingress
 spec:
-  ingressClassName: {{ $application.ingressClassName | default "nginx" }}
+  ingressClassName: {{ $.Values.ingressClassName | default "nginx" }}
   rules:
   {{ range $index, $entrypoint := $application.entrypoints}}
     - host: {{ $entrypoint.hostname }}
@@ -22,7 +22,11 @@ spec:
               service:
                 name: {{ $application.name }}-{{ $.Values.projectName }}-svc
                 port:
-                  number: {{ $entrypoint.servicePort }}
+                  {{ if eq $application.appType "http"}}
+                  number: 8080
+                  {{ else if eq $application.appType "grpc"}}
+                  number: 9009
+                  {{ end}}
           {{ end}}
   {{ end}}
 ---

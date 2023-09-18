@@ -1,17 +1,17 @@
-{{ range .Values.applications }}
+{{ range $key, $app := .Values.applications }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .name }}-{{ $.Values.projectName }}-svc
+  name: {{ $app.name }}-{{ $.Values.projectName }}-svc
 spec:
   selector:
-    app: {{ .name }}-{{ $.Values.projectName }}
+    app: {{ $app.name }}-{{ $.Values.projectName }}
+  {{ if eq $app.appType "http" }}
   ports:
-  {{ range .servicePorts }}
-    - port: {{ .portNumber }}
-      targetPort: {{ .portNumber }}
-      protocol: {{ .protocol | default "TCP" }}
-      name: port-{{ .portNumber }}
+    - port: 8080
+      targetPort: 8080
+      protocol: "TCP"
+      name: port-8080
   {{ end }}
 ---
 {{ end }}

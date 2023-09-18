@@ -1,32 +1,45 @@
-{{ range .Values.applications }}
+{{ range $key, $app := .Values.applications }}
 apiVersion: apps/v1
 kind: Deployment
 spec:
-  replicas: {{ .replicas | default 1 }}
+  replicas: {{ $app.replicas | default 1 }}
   selector:
     matchLabels:
-      app: {{ .name }}-{{ $.Values.projectName }}
+      app: {{ $app.name }}-{{ $.Values.projectName }}
   template:
     spec:
+      volumes:
+        - name: rr-config
+          configMap:
+            name: {{ $.Values.projectName }}-{{ $app.name }}-rr-{{ $app.appType }}
       containers:
-        - name: {{ .name }}-{{ $.Values.projectName }}
-          image: {{ .image }}:{{ .imageTag | default "latest" }}
+        - name: {{ $app.name }}-{{ $.Values.projectName }}
+          image: {{ $app.image }}:{{ $app.imageTag | default "latest" }}
+          env:
+            - name: PHP_IDE_CONFIG
+              value: "serverName={{ $app.name }}-{{ $.Values.projectName }}"
+            - name: XDEBUG_CONFIG
+              value: "client_host={{ $.Values.xdebugHost }}"
+          {{ if eq $app.appType "http" }}
           ports:
-          {{ range .servicePorts }}
-            - containerPort: {{ .portNumber}}
-              protocol: {{ .protocol | default "TCP" }}
-          {{ end }}
-          {{ if .readinessProbe }}
+            - containerPort: 8080
+              protocol: "TCP"
+          {{ if $app.readinessProbe }}
           readinessProbe:
             httpGet:
-              port: {{ .readinessProbe.port }}
-              path: {{ .readinessProbe.path | default "/health" }}
+              port: {{ $app.readinessProbe.port | default 8080 }}
+              path: {{ $app.readinessProbe.path | default "/health" }}
           {{ end }}
-          {{ if .readinessProbe }}
+          {{ if $app.readinessProbe }}
           livenessProbe:
             httpGet:
-              port: {{ .readinessProbe.port }}
+              port: {{ .readinessProbe.port | default 8080 }}
               path: {{ .readinessProbe.path | default "/health" }}
           {{ end }}
+          {{ end }}
+          volumeMounts:
+            - mountPath: /var/www/.rr.yaml
+              name: rr-config
+              subPath: rr.yaml
 ---
 {{ end }}
