@@ -6,10 +6,10 @@ metadata:
     {{- if eq $application.entrypointsType "grpc" }}
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     {{- end }}
-    kubernetes.io/ingress.class: {{ $application.properties.ingressClassName | default "nginx" }}
+    kubernetes.io/ingress.class: {{ $application.ingressClassName | default "nginx" }}
   name: {{$application.name}}-{{ $.Values.projectName }}-ingress
 spec:
-  ingressClassName: {{ $application.properties.ingressClassName | default "nginx" }}
+  ingressClassName: {{ $application.ingressClassName | default "nginx" }}
   rules:
   {{ range $index, $entrypoint := $application.entrypoints}}
     - host: {{ $entrypoint.hostname }}
