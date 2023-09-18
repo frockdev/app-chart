@@ -1,3 +1,5 @@
 /.idea/
 /multiq-app-chart.iml
 /helm/Chart.yaml
+values.yaml
+Chart.yaml
