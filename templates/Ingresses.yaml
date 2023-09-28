@@ -6,7 +6,6 @@ metadata:
     {{- if eq $application.appType "grpc" }}
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     {{- end }}
-    kubernetes.io/ingress.class: {{ $.Values.ingressClassName | default "nginx" }}
   name: {{$application.name}}-{{ $.Values.projectName }}-ingress
 spec:
   ingressClassName: {{ $.Values.ingressClassName | default "nginx" }}
