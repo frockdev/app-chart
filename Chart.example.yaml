@@ -12,11 +12,11 @@
 #  - name: The maintainers name (required for each maintainer)
 #    email: The maintainers email (optional for each maintainer)
 #    url: A URL for the maintainer (optional for each maintainer)
-dependencies:
-  - name: nginx-ingress
-    version: "0.18.1"
-    repository: https://helm.nginx.com/stable
-    tags:
-      - installNginxIngress
+#dependencies:
+#  - name: nginx-ingress
+#    version: "0.18.1"
+#    repository: https://helm.nginx.com/stable
+#    tags:
+#      - installNginxIngress
 apiVersion: v2
 

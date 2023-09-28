@@ -6,6 +6,9 @@ metadata:
 data:
   rr.yaml: |
     version: '3.8'
+    server:
+      command: "php /var/www/vendor/bin/rr-worker start"
+      relay: "pipes"
     rpc:
       listen: tcp://0.0.0.0:6001
     {{ if eq $app.appType "http" }}
@@ -16,8 +19,9 @@ data:
       max_request_size: 0
       middleware: [ "headers", "gzip" ]
       pool:
-        debug: false
-        command: "php my-super-app.php"
+        debug: {{ $.Values.rrDebugMode | default false }}
+        num_workers: 4
+        max_jobs: 32
     {{ end }}
 ---
 {{ end }}

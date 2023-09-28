@@ -1,19 +1,57 @@
 {{ range $key, $app := .Values.applications }}
 apiVersion: apps/v1
 kind: Deployment
+metadata:
+  name: {{ $app.name }}-{{ $.Values.projectName }}-depl
+  labels:
+    app: {{ $app.name }}-{{ $.Values.projectName }}
+
+    {{- if $app.containerForDeveloper }}
+    containerForDeveloper: {{ $app.containerForDeveloper | quote }}
+    {{- end }}
+    {{- if $app.syncPhpCode }}
+    syncPhpCode: "{{ $app.syncPhpCode | default "no" }}"
+    {{- end }}
 spec:
   replicas: {{ $app.replicas | default 1 }}
   selector:
     matchLabels:
       app: {{ $app.name }}-{{ $.Values.projectName }}
   template:
+    metadata:
+      labels:
+        app: {{ $app.name }}-{{ $.Values.projectName }}
+        {{- if $app.containerForDeveloper }}
+        containerForDeveloper: {{ $app.containerForDeveloper | quote }}
+        {{- end }}
+        {{- if $app.syncPhpCode }}
+        syncPhpCode: "{{ $app.syncPhpCode | default "no" }}"
+        {{- end }}
     spec:
       volumes:
         - name: rr-config
           configMap:
             name: {{ $.Values.projectName }}-{{ $app.name }}-rr-{{ $app.appType }}
+        {{ if $app.containerForDeveloper }}
+        - name: local-files
+          persistentVolumeClaim:
+            claimName: "{{ $.Values.projectName }}-code-claim"
+        {{ end }}
       containers:
         - name: {{ $app.name }}-{{ $.Values.projectName }}
+          {{ if $app.command }}
+          command:
+            {{- range $app.command }}
+            - {{ . }}
+            {{- end }}
+          {{end}}
+          {{ if $app.arguments }}
+          args:
+            {{- range $app.arguments }}
+            - {{ . }}
+            {{- end }}
+          {{end}}
+{{/*          imagePullPolicy: {{ $app.imagePullPolicy | default "IfNotPresent" }}*/}}
           image: {{ $app.image }}:{{ $app.imageTag | default "latest" }}
           env:
             - name: PHP_IDE_CONFIG
@@ -38,7 +76,11 @@ spec:
           {{ end }}
           {{ end }}
           volumeMounts:
-            - mountPath: /var/www/.rr.yaml
+            {{ if $app.containerForDeveloper }}
+            - name: local-files
+              mountPath: /var/www
+            {{ end }}
+            - mountPath: /var/.rr.yaml
               name: rr-config
               subPath: rr.yaml
 ---
