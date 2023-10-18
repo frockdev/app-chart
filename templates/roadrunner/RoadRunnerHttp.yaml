@@ -7,7 +7,7 @@ data:
   rr.yaml: |
     version: '3.8'
     server:
-      command: "php /var/www/vendor/bin/rr-worker start"
+      command: "php /var/www/php/vendor/bin/rr-worker start"
       relay: "pipes"
     rpc:
       listen: tcp://0.0.0.0:6001
@@ -17,11 +17,16 @@ data:
       internal_error_code: 505
       access_logs: false
       max_request_size: 0
-      middleware: [ "headers", "gzip" ]
+      middleware: [ "headers", "gzip", "static" ]
       pool:
         debug: {{ $.Values.rrDebugMode | default false }}
         num_workers: 4
         max_jobs: 32
+      static:
+        dir: /var/www/php/public
+        forbid: [ ".php", ".htaccess" ]
+        allow: [ ".js", ".css" ]
+        fallback_index: index.php
     {{ end }}
 ---
 {{ end }}

@@ -34,8 +34,9 @@ spec:
             name: {{ $.Values.projectName }}-{{ $app.name }}-rr-{{ $app.appType }}
         {{ if $app.containerForDeveloper }}
         - name: local-files
-          persistentVolumeClaim:
-            claimName: "{{ $.Values.projectName }}-code-claim"
+          hostPath:
+            path: {{ $.Values.localProjectDirectory }}
+            type: Directory
         {{ end }}
       containers:
         - name: {{ $app.name }}-{{ $.Values.projectName }}
