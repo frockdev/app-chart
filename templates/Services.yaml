@@ -1,4 +1,5 @@
 {{ range $key, $app := .Values.applications }}
+{{ if or (eq $app.appType "http") (eq $app.appType "grpc") }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -14,4 +15,5 @@ spec:
       name: port-8080
   {{ end }}
 ---
+{{ end }}
 {{ end }}
