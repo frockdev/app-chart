@@ -1,16 +1,17 @@
-{{ range $appIndex, $application := .Values.applications }}
+{{ range $appIndex, $app := .Values.applications }}
+{{ if or (eq $app.appType "http") (eq $app.appType "grpc") }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    {{- if eq $application.appType "grpc" }}
+    {{- if eq $app.appType "grpc" }}
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     {{- end }}
-  name: {{$application.name}}-{{ $.Values.projectName }}-ingress
+  name: {{$app.name}}-{{ $.Values.projectName }}-ingress
 spec:
   ingressClassName: {{ $.Values.ingressClassName | default "nginx" }}
   rules:
-  {{ range $index, $entrypoint := $application.entrypoints}}
+  {{ range $index, $entrypoint := $app.entrypoints}}
     - host: {{ $entrypoint.hostname }}
       http:
         paths:
@@ -19,14 +20,15 @@ spec:
             pathType: {{ .pathType | default "Prefix" }}
             backend:
               service:
-                name: {{ $application.name }}-{{ $.Values.projectName }}-svc
+                name: {{ $app.name }}-{{ $.Values.projectName }}-svc
                 port:
-                  {{ if eq $application.appType "http"}}
+                  {{ if eq $app.appType "http"}}
                   number: 8080
-                  {{ else if eq $application.appType "grpc"}}
+                  {{ else if eq $app.appType "grpc"}}
                   number: 9009
                   {{ end}}
           {{ end}}
   {{ end}}
 ---
+{{end}}
 {{ end}}

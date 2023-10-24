@@ -1,8 +1,10 @@
 {{ range $key, $app := .Values.applications }}
+{{if not (eq $app.disabled true )}}
+{{ if eq $app.appType "http" }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ $.Values.projectName }}-{{ $app.name }}-rr-{{ $app.appType }}
+  name: {{ $.Values.projectName }}-{{ $app.name }}-rr-http
 data:
   rr.yaml: |
     version: '3.8'
@@ -11,7 +13,10 @@ data:
       relay: "pipes"
     rpc:
       listen: tcp://0.0.0.0:6001
-    {{ if eq $app.appType "http" }}
+    {{ if $app.natsAddress }}
+    nats:
+      addr: {{ $app.natsAddress | quote }}
+    {{ end }}
     http:
       address: 0.0.0.0:8080
       internal_error_code: 505
@@ -20,13 +25,14 @@ data:
       middleware: [ "headers", "gzip", "static" ]
       pool:
         debug: {{ $.Values.rrDebugMode | default false }}
-        num_workers: 4
+        num_workers: {{ $app.workersPerPod | default 1 }}
         max_jobs: 32
       static:
         dir: /var/www/php/public
         forbid: [ ".php", ".htaccess" ]
         allow: [ ".js", ".css" ]
         fallback_index: index.php
-    {{ end }}
 ---
+{{ end }}
+{{ end }}
 {{ end }}

@@ -1,4 +1,5 @@
 {{ range $key, $app := .Values.applications }}
+{{if not (eq $app.disabled true )}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,9 +9,6 @@ metadata:
 
     {{- if $app.containerForDeveloper }}
     containerForDeveloper: {{ $app.containerForDeveloper | quote }}
-    {{- end }}
-    {{- if $app.syncPhpCode }}
-    syncPhpCode: "{{ $app.syncPhpCode | default "no" }}"
     {{- end }}
 spec:
   replicas: {{ $app.replicas | default 1 }}
@@ -23,9 +21,6 @@ spec:
         app: {{ $app.name }}-{{ $.Values.projectName }}
         {{- if $app.containerForDeveloper }}
         containerForDeveloper: {{ $app.containerForDeveloper | quote }}
-        {{- end }}
-        {{- if $app.syncPhpCode }}
-        syncPhpCode: "{{ $app.syncPhpCode | default "no" }}"
         {{- end }}
     spec:
       volumes:
@@ -86,3 +81,4 @@ spec:
               subPath: rr.yaml
 ---
 {{ end }}
+{{end}}
