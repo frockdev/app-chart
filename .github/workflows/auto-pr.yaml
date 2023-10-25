@@ -1,0 +1,27 @@
+name: Automatically create / update pull request
+
+# run this workflow only on new feature branches, not when they're merged to main
+on:
+  push:
+    branches-ignore:
+      - "main"
+
+jobs:
+  pull-request:
+    name: Open PR to main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: checkout
+
+      - uses: repo-sync/pull-request@v2
+        name: pull-request
+        with:
+          destination_branch: "main"
+          pr_title: "Pulling ${{ github.ref }} into main"
+          pr_body: "👑 *An automated PR*"
+          pr_draft: true
+          pr_assignee: "vladitot"
+          github_token: ${{ secrets.PRTOKEN }}
+
+
