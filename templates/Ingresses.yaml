@@ -4,6 +4,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
+    {{ range $annotationKey, $annotation := $app.commonIngressAnnotations }}
+    {{ $annotation.name | quote }}: {{ $annotation.value | quote }}
+    {{end}}
     {{- if eq $app.appType "grpc" }}
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     {{- end }}
