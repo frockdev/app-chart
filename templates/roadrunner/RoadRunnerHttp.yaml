@@ -9,7 +9,7 @@ data:
   rr.yaml: |
     version: '3.8'
     server:
-      command: "php /var/www/php/vendor/bin/rr-worker start"
+      command: "php /var/www/php/artisan frock:http-consumer"
       relay: "pipes"
     rpc:
       listen: tcp://0.0.0.0:6001
