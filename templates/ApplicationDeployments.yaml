@@ -50,8 +50,6 @@ spec:
 {{/*          imagePullPolicy: {{ $app.imagePullPolicy | default "IfNotPresent" }}*/}}
           image: {{ $app.image }}:{{ $app.imageTag | default "latest" }}
           env:
-            - name: XDEBUG_SESSION
-              value: "1"
             - name: APP_NAME
               value: {{ $.Values.projectName }}
             - name: PHP_IDE_CONFIG
