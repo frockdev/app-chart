@@ -34,4 +34,30 @@ spec:
   {{ end}}
 ---
 {{end}}
-{{ end}}
+
+{{ if $.Values.ngrok }}
+{{ if (eq $.Values.ngrok.applicationName $app.name) }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{$app.name}}-{{ $.Values.projectName }}-ngrok
+spec:
+  ingressClassName: ngrok
+  rules:
+  {{ range $index, $entrypoint := $app.entrypoints}}
+    - host: {{ $.Values.ngrok.domain }}
+      http:
+        paths:
+            {{ range $entrypoint.paths }}
+          - path: /
+            pathType: {{ .pathType | default "Prefix" }}
+            backend:
+              service:
+                name: {{ $app.name }}-{{ $.Values.projectName }}-svc
+                port:
+                  number: 8080
+            {{ end}}
+    {{ end}}
+{{ end }}
+{{ end }}
+{{ end }}
