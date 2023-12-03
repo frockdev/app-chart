@@ -17,6 +17,11 @@ spec:
       app: {{ $app.name }}-{{ $.Values.projectName }}
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/"
+        prometheus.io/scheme: "http"
+        prometheus.io/port: "2112"
       labels:
         app: {{ $app.name }}-{{ $.Values.projectName }}
         {{- if $app.containerForDeveloper }}

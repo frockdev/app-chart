@@ -8,6 +8,10 @@ metadata:
 data:
   rr.yaml: |
     version: '3.8'
+    logs:
+      mode: development
+    metrics:
+      address: 0.0.0.0:2112
     server:
       command: "php /var/www/php/artisan frock:http-consumer"
       env:
