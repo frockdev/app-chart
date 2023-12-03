@@ -8,6 +8,10 @@ metadata:
 data:
   rr.yaml: |
     version: '3.8'
+    metrics:
+      address: 0.0.0.0:2112
+    logs:
+      mode: development
     server:
       command: "php /var/www/php/vendor/bin/rr-worker start"
       relay: "pipes"
