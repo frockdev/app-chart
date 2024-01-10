@@ -17,6 +17,11 @@ spec:
       app: {{ $app.name }}-{{ $.Values.projectName }}
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/scheme: "http"
+        prometheus.io/port: "9502"
       labels:
         app: {{ $app.name }}-{{ $.Values.projectName }}
         {{- if $app.containerForDeveloper }}
@@ -24,15 +29,19 @@ spec:
         {{- end }}
     spec:
       volumes:
-        - name: rr-config
-          configMap:
-            name: {{ $.Values.projectName }}-{{ $app.name }}-rr-{{ $app.appType }}
         {{ if $app.containerForDeveloper }}
         - name: local-files
           hostPath:
             path: {{ $.Values.localProjectDirectory }}
             type: Directory
         {{ end }}
+      {{ if $.Values.customDns }}
+      dnsConfig:
+        nameservers:
+          {{- range $.Values.customDns }}
+          - {{ . }}
+          {{end}}
+      {{end}}
       containers:
         - name: {{ $app.name }}-{{ $.Values.projectName }}
           {{ if $app.command }}
@@ -50,37 +59,39 @@ spec:
 {{/*          imagePullPolicy: {{ $app.imagePullPolicy | default "IfNotPresent" }}*/}}
           image: {{ $app.image }}:{{ $app.imageTag | default "latest" }}
           env:
+            - name: APP_MODE
+              value: {{ $app.appType }}
             - name: APP_NAME
               value: {{ $.Values.projectName }}
             - name: PHP_IDE_CONFIG
               value: "serverName={{ $app.name }}-{{ $.Values.projectName }}"
             - name: XDEBUG_CONFIG
               value: "client_host={{ $.Values.xdebugHost }}"
-          {{ if eq $app.appType "http" }}
           ports:
-            - containerPort: 8080
+            - containerPort: 9502
               protocol: "TCP"
-          {{ if $app.readinessProbe }}
-          readinessProbe:
-            httpGet:
-              port: {{ $app.readinessProbe.port | default 8080 }}
-              path: {{ $app.readinessProbe.path | default "/health" }}
-          {{ end }}
-          {{ if $app.readinessProbe }}
-          livenessProbe:
-            httpGet:
-              port: {{ .readinessProbe.port | default 8080 }}
-              path: {{ .readinessProbe.path | default "/health" }}
-          {{ end }}
-          {{ end }}
+{{/*          {{ if eq $app.appType "http" }}*/}}
+{{/*          ports:*/}}
+{{/*            - containerPort: 8080*/}}
+{{/*              protocol: "TCP"*/}}
+{{/*          {{ if $app.readinessProbe }}*/}}
+{{/*          readinessProbe:*/}}
+{{/*            httpGet:*/}}
+{{/*              port: {{ $app.readinessProbe.port | default 8080 }}*/}}
+{{/*              path: {{ $app.readinessProbe.path | default "/health" }}*/}}
+{{/*          {{ end }}*/}}
+{{/*          {{ if $app.readinessProbe }}*/}}
+{{/*          livenessProbe:*/}}
+{{/*            httpGet:*/}}
+{{/*              port: {{ .readinessProbe.port | default 8080 }}*/}}
+{{/*              path: {{ .readinessProbe.path | default "/health" }}*/}}
+{{/*          {{ end }}*/}}
+{{/*          {{ end }}*/}}
           volumeMounts:
             {{ if $app.containerForDeveloper }}
             - name: local-files
               mountPath: /var/www
             {{ end }}
-            - mountPath: /var/.rr.yaml
-              name: rr-config
-              subPath: rr.yaml
 ---
 {{ end }}
 {{end}}
