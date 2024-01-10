@@ -48,7 +48,7 @@ spec:
       {{end}}
       containers:
         - name: {{ $app.name }}-{{ $.Values.projectName }}
-          {{ if $app.containerForDeveloper}}
+            {{ if $app.containerForDeveloper}}
           command: ["/.devspace/devspace-restart-helper"]
           args:
             {{- range $app.command }}
@@ -57,7 +57,7 @@ spec:
             {{- range $app.arguments }}
             - {{ . }}
             {{- end }}
-                  {{else}}
+              {{else}}
             {{ if $app.command }}
           command:
             {{- range $app.command }}
