@@ -30,6 +30,10 @@ spec:
     spec:
       volumes:
         {{ if $app.containerForDeveloper }}
+        - name: devspace-restart-helper
+          configMap:
+            name: {{ $.Values.projectName }}-{{ $app.name }}-restart-helper
+            defaultMode: 0777
         - name: local-files
           hostPath:
             path: {{ $.Values.localProjectDirectory }}
@@ -44,7 +48,17 @@ spec:
       {{end}}
       containers:
         - name: {{ $app.name }}-{{ $.Values.projectName }}
-          {{ if $app.command }}
+          {{ if $app.containerForDeveloper}}
+          command: ["/.devspace/devspace-restart-helper"]
+          args:
+            {{- range $app.command }}
+            - {{ . }}
+            {{- end }}
+            {{- range $app.arguments }}
+            - {{ . }}
+            {{- end }}
+                  {{else}}
+            {{ if $app.command }}
           command:
             {{- range $app.command }}
             - {{ . }}
@@ -55,6 +69,7 @@ spec:
             {{- range $app.arguments }}
             - {{ . }}
             {{- end }}
+          {{end}}
           {{end}}
 {{/*          imagePullPolicy: {{ $app.imagePullPolicy | default "IfNotPresent" }}*/}}
           image: {{ $app.image }}:{{ $app.imageTag | default "latest" }}
@@ -91,6 +106,12 @@ spec:
             {{ if $app.containerForDeveloper }}
             - name: local-files
               mountPath: /var/www
+            - mountPath: /.devspace/devspace-restart-helper
+              name: devspace-restart-helper
+              subPath: restart.sh
+            - mountPath: /.devspace/start
+              name: devspace-restart-helper
+              subPath: restart.sh
             {{ end }}
 ---
 {{ end }}
