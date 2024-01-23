@@ -52,6 +52,25 @@ spec:
       {{ end }}
       containers:
         - name: {{ $app.name }}-{{ $.Values.projectName }}
+          {{ if $app.resources }}
+          resources:
+            requests:
+              {{ if $app.resources.cpuMillis }}
+              cpu: "{{ $app.resources.cpuMillis }}m"
+              {{end}}
+              {{ if $app.resources.memoryMegabytes }}
+              memory: "{{ $app.resources.memoryMegabytes }}Mi"
+              {{end}}
+            {{ if or $app.resources.cpuMillisLimit $app.resources.memoryMegabytesLimit }}
+            limits:
+              {{ if $app.resources.cpuMillisLimit }}
+              cpu: "{{ $app.resources.cpuMillisLimit }}m"
+              {{end}}
+              {{ if $app.resources.memoryMegabytesLimit }}
+              memory: "{{ $app.resources.memoryMegabytesLimit }}Mi"
+              {{end}}
+            {{end}}
+          {{end}}
             {{ if $app.containerForDeveloper}}
           command: ["/.devspace/devspace-restart-helper"]
           args:
@@ -92,7 +111,7 @@ spec:
           {{ if $.Values.commonAdditionalEnv }}
           {{ range $envKey, $envValue := $.Values.commonAdditionalEnv }}
             - name: {{ $envKey }}
-              value: {{ $envValue }}
+              value: {{ $envValue | quote }}
           {{end}}
           {{end}}
           {{if eq $.Values.vaultEnabled true }}
