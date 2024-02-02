@@ -124,23 +124,25 @@ spec:
               protocol: "TCP"
             - containerPort: 9502
               protocol: "TCP"
-{{/*          {{ if eq $app.appType "http" }}*/}}
-{{/*          ports:*/}}
-{{/*            - containerPort: 8080*/}}
-{{/*              protocol: "TCP"*/}}
-{{/*          {{ if $app.readinessProbe }}*/}}
-{{/*          readinessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              port: {{ $app.readinessProbe.port | default 8080 }}*/}}
-{{/*              path: {{ $app.readinessProbe.path | default "/health" }}*/}}
-{{/*          {{ end }}*/}}
-{{/*          {{ if $app.readinessProbe }}*/}}
-{{/*          livenessProbe:*/}}
-{{/*            httpGet:*/}}
-{{/*              port: {{ .readinessProbe.port | default 8080 }}*/}}
-{{/*              path: {{ .readinessProbe.path | default "/health" }}*/}}
-{{/*          {{ end }}*/}}
-{{/*          {{ end }}*/}}
+          {{ if $.Values.disableAllProbes }}
+          {{else}}
+          readinessProbe:
+            failureThreshold: 2
+            periodSeconds: 3
+            initialDelaySeconds: 3
+            successThreshold: 3
+            httpGet:
+              port: 9512
+              path: "/liveness"
+          livenessProbe:
+            failureThreshold: 3
+            periodSeconds: 10
+            initialDelaySeconds: 10
+            successThreshold: 2
+            httpGet:
+              port: 9512
+              path: "/liveness"
+          {{ end }}
           volumeMounts:
             {{ if $app.containerForDeveloper }}
             - name: local-files
