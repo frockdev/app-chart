@@ -120,6 +120,8 @@ spec:
                 name: {{ $app.name }}-{{ $.Values.projectName }}-vault-secret
           {{end}}
           ports:
+            - containerPort: 9512
+              protocol: "TCP"
             - containerPort: 9502
               protocol: "TCP"
 {{/*          {{ if eq $app.appType "http" }}*/}}
