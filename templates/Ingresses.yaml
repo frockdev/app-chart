@@ -39,6 +39,10 @@ spec:
                     {{else}}
                       {{ if eq $networking.transportType "http" }}
                   number: 8080
+                      {{else}}
+                    {{ if eq $networking.transportType "http-rpc" }}
+                  number: 8082
+                        {{end}}
                       {{end}}
                     {{end}}
                   {{end}}
