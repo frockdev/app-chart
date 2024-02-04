@@ -21,6 +21,13 @@ spec:
       protocol: "TCP"
       name: port-{{ $networking.portNumber }}
   {{else}}
+  {{ if eq $networking.transportType "http-rpc" }}
+  ports:
+    - port: 8082
+      targetPort: 8082
+      protocol: "TCP"
+      name: port-8082
+  {{ end }}
   {{ if eq $networking.transportType "http" }}
   ports:
     - port: 8080
