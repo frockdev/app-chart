@@ -12,6 +12,11 @@ metadata:
     {{- end }}
 spec:
   replicas: {{ $app.replicas | default 1 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: {{ $app.name }}-{{ $.Values.projectName }}
