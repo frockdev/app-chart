@@ -18,7 +18,7 @@ metadata:
 spec:
 {{/*  ingressClassName: {{ $.Values.ingressClassName | default "nginx" }}*/}}
   rules:
-    - host: {{ $networking.host }}
+    - host: {{ $.Values.hostPrefix }}{{ $networking.host }}
       http:
         paths:
           - path: /
