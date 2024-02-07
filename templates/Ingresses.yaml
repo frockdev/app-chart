@@ -62,7 +62,7 @@ spec:
   ingressClassName: ngrok
   rules:
   {{ range $index, $entrypoint := $app.entrypoints}}
-    - host: {{ $.Values.ngrok.domain }}
+    - host: {{ $.Values.hostPrefix }}{{ $.Values.ngrok.domain }}
       http:
         paths:
             {{ range $entrypoint.paths }}
