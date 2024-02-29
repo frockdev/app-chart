@@ -99,11 +99,7 @@ spec:
             {{- end }}
           {{end}}
           {{end}}
-            {{ if $app.imageTag }}
           image: {{ $app.image }}:{{ $app.imageTag }}
-            {{ else }}
-          image: {{ $app.image }}:{{ $.Values.ciAppTag }}
-            {{ end }}
           env:
             - name: APP_MODE
               value: {{ $app.appType }}
