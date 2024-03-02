@@ -85,7 +85,7 @@ data:
       if [ -f "$pidFile" ]; then
       rm -f "$pidFile"
       printf "\nContainer exited. Will restart in 3 seconds...\n"
-      sleep 3
+      sleep 1
       fi
       printf "\n\n############### Restart container ###############\n\n"
       fi
