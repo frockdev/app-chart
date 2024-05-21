@@ -109,6 +109,7 @@ spec:
             - containerPort: 9512
               protocol: "TCP"
             - containerPort: 9502
+              name: metrics
               protocol: "TCP"
           {{ if $.Values.disableAllProbes }}
           {{else}}
